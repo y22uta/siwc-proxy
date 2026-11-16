@@ -1,0 +1,31 @@
+name: Muse gateway tests
+on:
+  push:
+    paths:
+      - 'muse-gateway/**'
+      - '.github/workflows/muse-gateway-ci.yml'
+  pull_request:
+    paths:
+      - 'muse-gateway/**'
+      - '.github/workflows/muse-gateway-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  test-muse-gateway:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    defaults:
+      run:
+        working-directory: muse-gateway
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install gateway and test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run gateway tests
+        run: python -m pytest -q
