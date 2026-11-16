@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "muse-siwc-bridge"
+version = "1.0.0"
+description = "Self-hosted, authenticated MCP gateway for Muse/Manus backed by SIWC ChatGPT plan usage"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "httpx>=0.27,<1", "pydantic>=2,<3"]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "pytest-asyncio>=0.23"]
+
+[project.scripts]
+muse-siwc-mcp = "muse_bridge.stdio:main"
+
+[tool.setuptools.packages.find]
+include = ["muse_bridge*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

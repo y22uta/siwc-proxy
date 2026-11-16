@@ -1,0 +1,5 @@
+FROM python:3.12-slim
+RUN pip install --no-cache-dir 'siwc-proxy==0.2.3' && useradd --create-home --uid 10001 siwc && mkdir -p /data && chown siwc:siwc /data
+USER siwc
+ENV SIWC_PROXY_DATA_DIR=/data
+CMD ["siwc-proxy", "serve", "--host", "0.0.0.0"]

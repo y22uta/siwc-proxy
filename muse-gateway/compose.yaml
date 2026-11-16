@@ -1,0 +1,43 @@
+services:
+  siwc:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.siwc
+    restart: unless-stopped
+    environment:
+      SIWC_PROXY_API_KEY: ${SIWC_PROXY_API_KEY:?Set in .env}
+      SIWC_PROXY_DATA_DIR: /data
+    volumes:
+      - siwc_credentials:/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.create_connection(('127.0.0.1',8787),2); s.close()"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  bridge:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      siwc:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${BRIDGE_PORT:-8088}:8088"
+    environment:
+      BRIDGE_API_KEY: ${BRIDGE_API_KEY:?Set in .env}
+      SIWC_PROXY_API_KEY: ${SIWC_PROXY_API_KEY:?Set in .env}
+      SIWC_PROXY_URL: http://siwc:8787/v1
+      BRIDGE_DEFAULT_MODEL: ${BRIDGE_DEFAULT_MODEL:-}
+      BRIDGE_ALLOWED_ORIGINS: ${BRIDGE_ALLOWED_ORIGINS:-}
+      BRIDGE_DB_PATH: /data/bridge.sqlite3
+      BRIDGE_MAX_CALLS_PER_HOUR: ${BRIDGE_MAX_CALLS_PER_HOUR:-100}
+      BRIDGE_MAX_CONCURRENT: ${BRIDGE_MAX_CONCURRENT:-2}
+    volumes:
+      - bridge_data:/data
+    networks: [internal]
+volumes:
+  siwc_credentials: {}
+  bridge_data: {}
+networks:
+  internal:
+    driver: bridge
