@@ -7,6 +7,9 @@ services:
     environment:
       SIWC_PROXY_API_KEY: ${SIWC_PROXY_API_KEY:?Set in .env}
       SIWC_PROXY_DATA_DIR: /data
+      # The bridge reaches this service as http://siwc:8787; siwc-proxy's
+      # DNS-rebinding guard rejects non-loopback Host headers unless allowed.
+      SIWC_PROXY_ALLOWED_HOSTS: siwc
     volumes:
       - siwc_credentials:/data
     networks: [internal]
